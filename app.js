@@ -15,8 +15,11 @@ const clienteController = require('./controllers/cliente');
 
 app.get('/menu', menuController.getMenu);
 app.get('/mesa', mesaController.getMesa);
+app.get('/mesatype', menuController.getMenuByType);
+app.put('/mesa', mesaController.updateStatusMesa);
 app.post('/cliente', clienteController.addClient);
 app.get('/cliente', clienteController.getCliente);
+
 
 
 
