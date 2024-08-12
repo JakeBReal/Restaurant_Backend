@@ -10,6 +10,17 @@ const getMenu = async (req, res) => {
   }
 };
 
+
+const getMenuDisponible = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM menu where disponibilidad = true');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener el menú' });
+  }
+};
+
 const getMenuByType = async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM menu');
@@ -40,7 +51,26 @@ const getMenuByType = async (req, res) => {
 };
 
 
+const updateStatusMenu = async (req, res) => {
+
+  try {
+    const {id_menu,disponibilidad} = req.body;
+    const result = await db.query(`UPDATE menu
+  SET disponibilidad=${disponibilidad}
+  WHERE id_menu=${id_menu};`);
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener el menú' });
+  }
+};
+
+
+
+
 module.exports = {
   getMenu,
-  getMenuByType
+  getMenuByType,
+  updateStatusMenu,
+  getMenuDisponible
 };

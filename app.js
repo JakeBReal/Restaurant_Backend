@@ -10,15 +10,29 @@ app.use(express.urlencoded({ extended: true }));
 const menuController = require('./controllers/menu');
 const mesaController = require('./controllers/mesa');
 const clienteController = require('./controllers/cliente');
+const cuentaController = require('./controllers/cuenta');
+
 
 
 
 app.get('/menu', menuController.getMenu);
+app.get('/menuDisponible', menuController.getMenuDisponible);
+app.put('/updateStatusMenu', menuController.updateStatusMenu);
+app.post('/addCuenta', cuentaController.addCuenta);
+app.get('/getTotalCuenta', cuentaController.getTotalCuenta);
+
+
 app.get('/mesa', mesaController.getMesa);
+app.post('/addMenu', mesaController.addMesa);
 app.get('/mesatype', menuController.getMenuByType);
 app.put('/mesa', mesaController.updateStatusMesa);
+app.get('/mesaOcupada', mesaController.getMesaOcupadas);
 app.post('/cliente', clienteController.addClient);
 app.get('/cliente', clienteController.getCliente);
+app.post('/addComidaCliente', clienteController.addComidaCliente);
+app.get('/getComidaCliente', clienteController.getComidaCliente);
+
+
 
 
 
