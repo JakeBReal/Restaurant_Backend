@@ -22,7 +22,8 @@ const addCuenta = async (req, res) => {
           clientes.nombre AS nombre_cliente,
           mesas.id_mesa AS numero_mesa,
           menu.nombre AS nombre_menu,
-          menu.precio
+          menu.precio,
+          cuentas.id_cuenta
         FROM cuentas
         INNER JOIN clientes ON clientes.id_cliente = cuentas.id_cliente
         INNER JOIN mesas ON mesas.id_cliente = clientes.id_cliente
@@ -34,6 +35,7 @@ const addCuenta = async (req, res) => {
       const groupedClients = result.rows.reduce((acc, row) => {
         if (!acc[row.id_cliente]) {
           acc[row.id_cliente] = {
+            id_cuenta: row.id_cuenta,
             id: row.id_cliente,
             nombre: row.nombre_cliente,
             tableId: row.numero_mesa,
@@ -67,7 +69,62 @@ const addCuenta = async (req, res) => {
   };
 
 
+  const pagarCuenta = async (req, res) => {
+    const { id_cuenta, id_cliente, id_menu,total,id_mesa } = req.body;
+    try {
+      // Iniciar una transacción
+      await db.query('BEGIN');
+  
+      // Actualizar el estado de la cuenta a true
+      await db.query(
+        'UPDATE cuentas SET estado = $1 WHERE id_cuenta = $2',
+        [true, id_cuenta]
+      );
+      
+      await db.query(
+        'UPDATE mesas SET estado = $1, id_mesa = $2 WHERE id_mesa = $2',
+        [true, id_mesa]
+      );
+  
+      // Eliminar registros de la tabla comidaCliente
+      await db.query(
+        'DELETE FROM comidaCliente WHERE id_cliente = $1',
+        [id_cliente]
+      );
+
+          // Insertar un nuevo registro en la tabla totaldeVenta
+    await db.query(
+      'INSERT INTO totaldeVenta (id_cuenta, total, fecha) VALUES ($1, $2, CURRENT_DATE)',
+      [id_cuenta, total]
+    );
+  
+      // Confirmar la transacción
+      await db.query('COMMIT');
+  
+      res.status(200).json({ok: true});
+    } catch (err) {
+      // Revertir la transacción en caso de error
+      await db.query('ROLLBACK');
+      console.error('Error al pagar la cuenta:', err);
+      res.status(500).send('Error al pagar la cuenta');
+    }
+  };
+
+
+  const getCuandre = async (req, res) => {
+    try {
+      const result = await db.query('select *, totaldeventa.total from totaldeventa inner join cuentas on cuentas.id_cuenta = totaldeventa.id_cuenta inner join clientes on clientes.id_cliente = cuentas.id_cliente inner join mesas on mesas.id_cliente = clientes.id_cliente');
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al obtener el menú' });
+    }
+  };
+
+
 module.exports = {
     addCuenta,
-    getTotalCuenta
+    getTotalCuenta,
+    pagarCuenta,
+    getCuandre
 };

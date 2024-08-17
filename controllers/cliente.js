@@ -26,16 +26,23 @@ const addClient = async (req, res) => {
 
   const addComidaCliente = async (req, res) => {
     try {
-      const { id_cliente,id_menu,disponibilidad } = req.body;
-      if(disponibilidad){
+      const { id_cliente,id_menu,disponibilidad,cantidad } = req.body;
+      const result = await db.query(
+        'SELECT * FROM comidaCliente WHERE id_cliente = $1 AND id_menu = $2',
+        [id_cliente, id_menu]
+      );
+
+      if(!result.rows.length){
         const result = await db.query(
           'INSERT INTO comidaCliente (id_cliente,id_menu) VALUES ($1,$2) RETURNING *',
           [id_cliente,id_menu]
         );
-      }else{
-        const result = await db.query(
-          'DELETE FROM comidaCliente WHERE id_cliente=$1 and id_menu=$2',
-          [id_cliente,id_menu]);
+
+        await db.query(
+          'UPDATE menu SET cantidad = cantidad - $1 WHERE id_menu = $2',
+          [cantidad, id_menu]
+        );
+
       }
   
       res.status(200).json({ok: true});

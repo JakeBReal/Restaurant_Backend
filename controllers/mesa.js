@@ -22,10 +22,10 @@ const getMesaOcupadas = async (req, res) => {
 
 const addMesa= async (req, res) => {
   try {
-    const { nombre,descripcion, precio, disponibilidad, imagen,tipo } = req.body;
+    const { nombre,descripcion, precio, disponibilidad, imagen,tipo,cantidad } = req.body;
     const result =  await db.query(
-      'INSERT INTO menu (nombre, descripcion, precio, disponibilidad,imagen,tipo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [nombre, descripcion, precio, disponibilidad,imagen,tipo]
+      'INSERT INTO menu (nombre, descripcion, precio, disponibilidad,imagen,tipo,cantidad) VALUES ($1, $2, $3, $4, $5, $6 ,$7) RETURNING *',
+      [nombre, descripcion, precio, disponibilidad,imagen,tipo,cantidad]
     );
     res.status(200).json(result.rows);
   } catch (err) {

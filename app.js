@@ -11,15 +11,22 @@ const menuController = require('./controllers/menu');
 const mesaController = require('./controllers/mesa');
 const clienteController = require('./controllers/cliente');
 const cuentaController = require('./controllers/cuenta');
+const usuarioController = require('./controllers/usuario');
 
 
 
 
+
+app.post('/usuario', usuarioController.addUsuario);
+app.post('/login', usuarioController.login);
 app.get('/menu', menuController.getMenu);
 app.get('/menuDisponible', menuController.getMenuDisponible);
 app.put('/updateStatusMenu', menuController.updateStatusMenu);
 app.post('/addCuenta', cuentaController.addCuenta);
+app.post('/pagarCuenta', cuentaController.pagarCuenta);
 app.get('/getTotalCuenta', cuentaController.getTotalCuenta);
+app.get('/getCuandre', cuentaController.getCuandre);
+
 
 
 app.get('/mesa', mesaController.getMesa);
