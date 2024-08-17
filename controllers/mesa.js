@@ -35,6 +35,21 @@ const addMesa= async (req, res) => {
 };
 
 
+const addMenu= async (req, res) => {
+  try {
+    const { capacidad, imagen } = req.body;
+    const result =  await db.query(
+      'INSERT INTO mesas (capacidad, imagen, estado) VALUES ($1, $2, $3) RETURNING *',
+      [capacidad, imagen,true]
+    );
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener el menú' });
+  }
+};
+
+
 
 const updateStatusMesa = async (req, res) => {
   try {
@@ -56,5 +71,6 @@ module.exports = {
     getMesa,
     updateStatusMesa,
     getMesaOcupadas,
-    addMesa
+    addMesa,
+    addMenu
 };

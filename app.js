@@ -31,6 +31,7 @@ app.get('/getCuandre', cuentaController.getCuandre);
 
 app.get('/mesa', mesaController.getMesa);
 app.post('/addMenu', mesaController.addMesa);
+app.post('/addMenus', mesaController.addMenu);
 app.get('/mesatype', menuController.getMenuByType);
 app.put('/mesa', mesaController.updateStatusMesa);
 app.get('/mesaOcupada', mesaController.getMesaOcupadas);
