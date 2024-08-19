@@ -82,7 +82,7 @@ const addCuenta = async (req, res) => {
       );
       
       await db.query(
-        'UPDATE mesas SET estado = $1, id_mesa = $2 WHERE id_mesa = $2',
+        'UPDATE mesas SET estado = $1, id_mesa = $2, id_cliente = null WHERE id_mesa = $2',
         [true, id_mesa]
       );
   
@@ -112,8 +112,35 @@ const addCuenta = async (req, res) => {
 
 
   const getCuandre = async (req, res) => {
+    const { filter } = req.query;
+    console.log(filter);
     try {
-      const result = await db.query('select *, totaldeventa.total from totaldeventa inner join cuentas on cuentas.id_cuenta = totaldeventa.id_cuenta inner join clientes on clientes.id_cliente = cuentas.id_cliente inner join mesas on mesas.id_cliente = clientes.id_cliente');
+      let query = `
+    SELECT *, totaldeventa.total 
+    FROM totaldeventa 
+    INNER JOIN cuentas ON cuentas.id_cuenta = totaldeventa.id_cuenta 
+    INNER JOIN clientes ON clientes.id_cliente = cuentas.id_cliente
+  `;
+
+  switch (filter) {
+    case 'yesterday':
+      query += ` WHERE totaldeventa.fecha = CURRENT_DATE - INTERVAL '1 day'`;
+      break;
+    case 'last_week':
+      query += ` WHERE totaldeventa.fecha >= CURRENT_DATE - INTERVAL '7 days'`;
+      break;
+    case 'last_month':
+      query += ` WHERE totaldeventa.fecha >= CURRENT_DATE - INTERVAL '1 month'`;
+      break;
+    case 'last_year':
+      query += ` WHERE totaldeventa.fecha >= CURRENT_DATE - INTERVAL '1 year'`;
+      break;
+    case 'all':
+    default:
+      // No additional filter for 'all'
+      break;
+  }
+  const result = await db.query(query);
       res.status(200).json(result.rows);
     } catch (err) {
       console.error(err);
