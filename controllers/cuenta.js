@@ -113,7 +113,6 @@ const addCuenta = async (req, res) => {
 
   const getCuandre = async (req, res) => {
     const { filter } = req.query;
-    console.log(filter);
     try {
       let query = `
     SELECT *, totaldeventa.total 

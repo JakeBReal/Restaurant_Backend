@@ -34,13 +34,19 @@ const addClient = async (req, res) => {
 
       if(!result.rows.length){
         const result = await db.query(
-          'INSERT INTO comidaCliente (id_cliente,id_menu) VALUES ($1,$2) RETURNING *',
-          [id_cliente,id_menu]
+          'INSERT INTO comidaCliente (id_cliente,id_menu,cantidad) VALUES ($1,$2,$3) RETURNING *',
+          [id_cliente,id_menu,cantidad]
         );
 
         await db.query(
           'UPDATE menu SET cantidad = cantidad - $1 WHERE id_menu = $2',
           [cantidad, id_menu]
+        );
+
+      }else{
+        await db.query(
+          'UPDATE comidaCliente SET cantidad = cantidad + $1 WHERE id_cliente = $2 AND id_menu = $3',
+          [cantidad, id_cliente, id_menu]
         );
 
       }
@@ -55,7 +61,7 @@ const addClient = async (req, res) => {
 
   const getComidaCliente = async (req, res) => {
     try {
-      const result = await db.query('SELECT * FROM public.comidacliente inner join clientes on clientes.id_cliente = comidacliente.id_cliente inner join menu on menu.id_menu = comidacliente.id_menu inner join mesas on mesas.id_cliente = comidacliente.id_cliente');
+      const result = await db.query('SELECT *,comidacliente.cantidad  FROM public.comidacliente inner join clientes on clientes.id_cliente = comidacliente.id_cliente inner join menu on menu.id_menu = comidacliente.id_menu inner join mesas on mesas.id_cliente = comidacliente.id_cliente');
       
       const groupedClients = result.rows.reduce((acc, row) => {
         if (!acc[row.id_cliente]) {
@@ -70,7 +76,8 @@ const addClient = async (req, res) => {
         if (!acc[row.id_cliente].ordenSet.has(row.nombre)) {
           acc[row.id_cliente].orden.push({
             nombre: row.nombre,
-            precio: parseFloat(row.precio)
+            precio: parseFloat(row.precio),
+            cantidad: row.cantidad
           });
           acc[row.id_cliente].ordenSet.add(row.nombre);
         }
