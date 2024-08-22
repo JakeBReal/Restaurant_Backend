@@ -17,13 +17,15 @@ const addCuenta = async (req, res) => {
   const getTotalCuenta = async (req, res) => {
     try {
       const result = await db.query(`
-        SELECT 
+     SELECT 
           clientes.id_cliente,
           clientes.nombre AS nombre_cliente,
           mesas.id_mesa AS numero_mesa,
           menu.nombre AS nombre_menu,
           menu.precio,
-          cuentas.id_cuenta
+          cuentas.id_cuenta,
+	 	  (comidacliente.cantidad * menu.precio ) as total,
+		  comidacliente.cantidad 
         FROM cuentas
         INNER JOIN clientes ON clientes.id_cliente = cuentas.id_cliente
         INNER JOIN mesas ON mesas.id_cliente = clientes.id_cliente
@@ -48,9 +50,10 @@ const addCuenta = async (req, res) => {
         if (!acc[row.id_cliente].ordenSet.has(row.nombre_menu)) {
           acc[row.id_cliente].orders.push({
             nombre: row.nombre_menu,
-            precio: parseFloat(row.precio)
+            precio: parseFloat(row.precio),
+            cantidad: row.cantidad
           });
-          acc[row.id_cliente].total += parseFloat(row.precio);
+          acc[row.id_cliente].total += parseFloat(row.total);
           acc[row.id_cliente].ordenSet.add(row.nombre_menu);
         }
         return acc;
