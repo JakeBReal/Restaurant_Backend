@@ -38,6 +38,7 @@ app.get('/mesaOcupada', mesaController.getMesaOcupadas);
 app.post('/cliente', clienteController.addClient);
 app.get('/cliente', clienteController.getCliente);
 app.post('/addComidaCliente', clienteController.addComidaCliente);
+app.delete('/deleteComidaCliente', clienteController.deleteComidaCliente);
 app.get('/getComidaCliente', clienteController.getComidaCliente);
 
 

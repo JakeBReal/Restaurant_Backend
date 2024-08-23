@@ -59,6 +59,37 @@ const addClient = async (req, res) => {
   };
 
 
+  const deleteComidaCliente = async (req, res) => {
+    try {
+      const { id_cliente, id_menu } = req.query;
+      const result = await db.query(
+        'SELECT * FROM comidaCliente WHERE id_cliente = $1 AND id_menu = $2',
+        [id_cliente, id_menu]
+      );
+      
+      if(result.rows.length){
+        const result = await db.query(
+          'DELETE FROM comidaCliente WHERE id_cliente = $1 AND id_menu = $2 RETURNING *',
+          [id_cliente, id_menu]
+        );
+        
+
+        await db.query(
+          'UPDATE menu SET cantidad = cantidad + $1 WHERE id_menu = $2',
+          [result.rows[0].cantidad, id_menu]
+        );
+      res.status(200).json({ok: true});
+        
+      }else{
+        return   res.status(200).json({ok: false});
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al obtener el menú' });
+    }
+  };
+
+
   const getComidaCliente = async (req, res) => {
     try {
       const result = await db.query('SELECT *,comidacliente.cantidad  FROM public.comidacliente inner join clientes on clientes.id_cliente = comidacliente.id_cliente inner join menu on menu.id_menu = comidacliente.id_menu inner join mesas on mesas.id_cliente = comidacliente.id_cliente');
@@ -102,5 +133,6 @@ module.exports = {
   addClient,
   getCliente,
   addComidaCliente,
-  getComidaCliente
+  getComidaCliente,
+  deleteComidaCliente
 };
